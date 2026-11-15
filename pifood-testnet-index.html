@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#111018">
+<title>PiFood — Order and pay with Pi</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<style>
+:root{--bg:#100f16;--panel:#1a1822;--panel2:#211e2b;--text:#f7f4fb;--muted:#aaa4b6;--purple:#8b5cf6;--purple2:#6d3de0;--line:#302b3b;--green:#65d69a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% -10%,#332052 0,transparent 34%),var(--bg);color:var(--text);font:15px/1.45 Inter,system-ui,-apple-system,Segoe UI,sans-serif}button,input{font:inherit}button{cursor:pointer;border:0}.wrap{max-width:1120px;margin:auto;padding:0 22px}
+header{position:sticky;top:0;z-index:5;background:#100f16eF;backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}.nav{height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:10px;font-weight:850;font-size:22px;letter-spacing:-.8px}.logo{width:38px;height:38px;border-radius:13px;background:linear-gradient(145deg,#a78bfa,#6d3de0);display:grid;place-items:center;font-size:22px;box-shadow:0 7px 24px #8b5cf644}.brand span:last-child{color:#b99aff}.navright{display:flex;align-items:center;gap:12px}.location{color:var(--muted);font-size:13px}.cartbtn,.pill{background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:10px 14px;border-radius:13px;font-weight:700}.cartcount{background:var(--purple);padding:2px 7px;border-radius:20px;margin-left:5px;font-size:12px}
+.hero{padding:46px 0 28px;display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:28px}.eyebrow{color:#c4aaff;font-size:12px;font-weight:800;letter-spacing:1.7px;text-transform:uppercase}.hero h1{font-size:clamp(36px,5vw,58px);line-height:1.02;letter-spacing:-2.7px;margin:13px 0}.hero h1 em{font-style:normal;color:#b99aff}.hero p{color:var(--muted);max-width:470px;font-size:16px}.heroart{min-height:230px;border-radius:26px;background:linear-gradient(135deg,#302244,#17151e);border:1px solid #49365f;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}.heroart:before,.heroart:after{content:"";position:absolute;border-radius:50%;filter:blur(2px)}.heroart:before{width:240px;height:240px;background:#8b5cf633;right:-40px;top:-90px}.heroart:after{width:180px;height:180px;background:#d9770630;left:-55px;bottom:-100px}.foodemoji{font-size:112px;z-index:1;filter:drop-shadow(0 18px 20px #0008);transform:rotate(-8deg)}.float{position:absolute;z-index:2;background:#211d2c;border:1px solid #55446c;padding:10px 13px;border-radius:13px;font-size:12px;font-weight:700}.float.one{top:22px;left:20px}.float.two{bottom:22px;right:20px;color:#c4aaff}
+.searchrow{display:flex;gap:10px;margin:12px 0 22px}.search{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;color:var(--text);outline:none}.search:focus{border-color:var(--purple)}.filters{display:flex;gap:9px;overflow:auto;padding-bottom:8px}.filter{white-space:nowrap;background:var(--panel);border:1px solid var(--line);color:var(--muted);padding:9px 14px;border-radius:30px;font-weight:650}.filter.active{background:#39275a;border-color:#8b5cf6;color:#fff}
+.sectionhead{display:flex;justify-content:space-between;align-items:end;margin:26px 0 15px}.sectionhead h2{font-size:23px;letter-spacing:-.7px;margin:0}.sectionhead small{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding-bottom:48px}.card{background:linear-gradient(180deg,#211e2b,#191720);border:1px solid var(--line);border-radius:20px;overflow:hidden;transition:.2s}.card:hover{transform:translateY(-3px);border-color:#665080}.photo{height:154px;display:grid;place-items:center;font-size:76px;background:radial-gradient(circle at 50% 60%,#57406d,#292334 65%,#211e2b);position:relative}.tag{position:absolute;left:12px;top:12px;background:#111018d9;border:1px solid #ffffff20;padding:5px 9px;border-radius:20px;font-size:11px;font-weight:800}.cardbody{padding:15px}.cardtitle{font-size:17px;font-weight:800;margin-bottom:4px}.desc{font-size:13px;color:var(--muted);min-height:37px}.cardfoot{display:flex;justify-content:space-between;align-items:center;margin-top:14px}.price{font-weight:850;color:#c5a8ff;font-size:16px}.add{width:36px;height:36px;border-radius:12px;background:var(--purple);color:white;font-size:22px;font-weight:500}.add:hover,.checkout:hover{background:var(--purple2)}
+.note{border:1px solid #4a3a5f;background:#211b2b;padding:15px 17px;border-radius:16px;color:#c8bfd5;font-size:13px;margin:0 0 36px}.note strong{color:#fff}.overlay{display:none;position:fixed;inset:0;background:#0009;z-index:10}.overlay.show{display:block}.drawer{position:absolute;right:0;top:0;height:100%;width:min(430px,100%);background:#17151e;border-left:1px solid var(--line);padding:22px;display:flex;flex-direction:column}.drawhead{display:flex;justify-content:space-between;align-items:center}.drawhead h2{margin:0}.close{background:var(--panel2);color:white;border-radius:10px;width:36px;height:36px;font-size:20px}.cartitems{overflow:auto;flex:1;margin:18px 0}.cartitem{display:flex;gap:12px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)}.cartemoji{font-size:32px}.cartinfo{flex:1}.cartinfo strong{display:block}.cartinfo small{color:var(--muted)}.qty{display:flex;align-items:center;gap:8px}.qty button{background:var(--panel2);color:white;width:26px;height:26px;border-radius:8px}.totals{border-top:1px solid var(--line);padding-top:15px}.totalrow{display:flex;justify-content:space-between;margin:7px 0;color:var(--muted)}.totalrow.final{color:white;font-size:20px;font-weight:850;margin:13px 0}.checkout{width:100%;padding:14px;border-radius:13px;background:var(--purple);color:#fff;font-weight:850;margin-top:8px}.empty{text-align:center;color:var(--muted);padding:60px 10px}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(90px);background:#262131;border:1px solid #5a4774;padding:12px 18px;border-radius:13px;z-index:20;transition:.25s;box-shadow:0 10px 35px #0008}.toast.show{transform:translateX(-50%) translateY(0)}footer{border-top:1px solid var(--line);padding:22px 0 35px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;gap:12px}
+@media(max-width:760px){.hero{grid-template-columns:1fr;padding-top:32px}.heroart{min-height:180px}.foodemoji{font-size:90px}.grid{grid-template-columns:repeat(2,1fr);gap:11px}.photo{height:125px;font-size:62px}.cardbody{padding:12px}.location{display:none}}@media(max-width:470px){.wrap{padding:0 15px}.grid{grid-template-columns:1fr 1fr}.cardtitle{font-size:15px}.desc{font-size:12px}.nav{height:64px}.brand{font-size:20px}.hero h1{font-size:40px}}
+</style></head>
+<body>
+<header><div class="wrap nav"><div class="brand"><div class="logo">π</div><span>Pi<span>Food</span></span></div><div class="navright"><div class="location">📍 Omegna, Italy</div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end"><button class="pill" id="piLogin" type="button" onclick="loginWithPi()" disabled>Connecting Pi…</button><button class="cartbtn" onclick="openCart()">🛒 Cart <span class="cartcount" id="count">0</span></button></div></div></div></header>
+<main class="wrap">
+<section class="hero"><div><div class="eyebrow">Where great food meets Pi</div><h1>Your food.<br><em>Your Pi.</em></h1><p>Discover local flavors, choose your favorite dishes, and get ready to order with PiFood.</p></div><div class="heroart"><div class="float one">🍴 Local flavors</div><div class="foodemoji">🍔</div><div class="float two">◎ Powered by Pi Network</div></div></section>
+<div class="searchrow"><input id="search" class="search" placeholder="Search for a dish or restaurant…" oninput="render()"></div>
+<div class="filters" id="filters"><button class="filter active" data-cat="All" onclick="setCat('All')">All</button><button class="filter" data-cat="Sandwiches" onclick="setCat('Sandwiches')">🍔 Sandwiches</button><button class="filter" data-cat="Street food" onclick="setCat('Street food')">🥟 Street food</button><button class="filter" data-cat="Main dishes" onclick="setCat('Main dishes')">🍽️ Main dishes</button><button class="filter" data-cat="Desserts" onclick="setCat('Desserts')">🍰 Desserts</button><button class="filter" data-cat="Drinks" onclick="setCat('Drinks')">🥤 Drinks</button></div>
+<div class="sectionhead"><h2>Picked for you</h2><small>Sample menu · Omegna</small></div><div class="grid" id="products"></div>
+<div id="piStatus" class="note" role="status">Pi SDK is initializing in Testnet Sandbox mode.</div>
+<div class="note"><strong>ℹ️ Prototype version:</strong> Pi prices are for demonstration only. Checkout is a simulation: no Pi will be transferred. Real payments will be enabled after Pi SDK integration and server-side verification.</div>
+<footer><span>© 2026 PiFood · Prototype</span><span>A local marketplace built for Pi Network</span></footer>
+</main>
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeCart()"><aside class="drawer"><div class="drawhead"><h2>Your cart</h2><button class="close" onclick="closeCart()">×</button></div><div class="cartitems" id="cartitems"></div><div class="totals" id="totals"></div></aside></div><div class="toast" id="toast"></div>
+<script>
+const products=[
+{id:1,name:"Sicilian Sandwich",desc:"Breaded cutlet, mozzarella, tomato and sauce",price:2.8,cat:"Sandwiches",emoji:"🥪",tag:"Customer favorite"},
+{id:2,name:"Arancino with Meat Sauce",desc:"Golden rice ball with traditional meat sauce",price:1.1,cat:"Street food",emoji:"🍘",tag:""},
+{id:3,name:"Panzerotto",desc:"Golden fried dough with melted mozzarella",price:1.0,cat:"Street food",emoji:"🥟",tag:""},
+{id:4,name:"Braised Beef with Polenta",desc:"Tender braised beef with creamy polenta",price:3.5,cat:"Main dishes",emoji:"🍲",tag:""},
+{id:5,name:"Cordon Bleu",desc:"Crispy on the outside, tender on the inside",price:3.5,cat:"Main dishes",emoji:"🍗",tag:""},
+{id:6,name:"Sicilian Cannolo",desc:"Crispy pastry shell filled with ricotta cream",price:1.4,cat:"Desserts",emoji:"🥐",tag:""},
+{id:7,name:"Tiramisu",desc:"The classic Italian dessert",price:1.6,cat:"Desserts",emoji:"🍰",tag:""},
+{id:8,name:"Soft Drink",desc:"Choose your favorite non-alcoholic drink",price:.7,cat:"Drinks",emoji:"🥤",tag:""}
+];
+let category="All",cart={};const fmt=n=>n.toFixed(2)+" π";
+function render(){const q=document.getElementById("search").value.toLowerCase();const list=products.filter(p=>(category==="All"||p.cat===category)&&(p.name.toLowerCase().includes(q)||p.desc.toLowerCase().includes(q)));document.getElementById("products").innerHTML=list.map(p=>`<article class="card"><div class="photo"><span>${p.emoji}</span>${p.tag?`<span class="tag">${p.tag}</span>`:""}</div><div class="cardbody"><div class="cardtitle">${p.name}</div><div class="desc">${p.desc}</div><div class="cardfoot"><span class="price">${fmt(p.price)}</span><button class="add" aria-label="Add ${p.name}" onclick="add(${p.id})">+</button></div></div></article>`).join("")||'<div class="empty">No products found.</div>';}
+function setCat(c){category=c;document.querySelectorAll(".filter").forEach(b=>b.classList.toggle("active",b.dataset.cat===c));render()}
+function add(id){cart[id]=(cart[id]||0)+1;update();toast("Added to cart ✓")}
+function change(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];update()}
+function update(){let n=Object.values(cart).reduce((a,b)=>a+b,0);document.getElementById("count").textContent=n;const entries=Object.entries(cart);document.getElementById("cartitems").innerHTML=entries.length?entries.map(([id,q])=>{let p=products.find(x=>x.id==id);return `<div class="cartitem"><div class="cartemoji">${p.emoji}</div><div class="cartinfo"><strong>${p.name}</strong><small>${fmt(p.price*q)}</small></div><div class="qty"><button aria-label="Decrease quantity" onclick="change(${id},-1)">−</button><b>${q}</b><button aria-label="Increase quantity" onclick="change(${id},1)">+</button></div></div>`}).join(""):'<div class="empty">Your cart is empty.<br>Time to choose something delicious! 😋</div>';let total=entries.reduce((s,[id,q])=>s+products.find(p=>p.id==id).price*q,0);document.getElementById("totals").innerHTML=entries.length?`<div class="totalrow"><span>Subtotal</span><span>${fmt(total)}</span></div><div class="totalrow"><span>Delivery</span><span>To be confirmed</span></div><div class="totalrow final"><span>Demo total</span><span>${fmt(total)}</span></div><button class="checkout" onclick="checkout()">Continue (demo)</button>`:"";}
+function openCart(){document.getElementById("overlay").classList.add("show");update()}function closeCart(){document.getElementById("overlay").classList.remove("show")}
+function checkout(){toast("Demo checkout: Pi payments are not active yet.")}
+let toastTimer;function toast(s){const t=document.getElementById("toast");t.textContent=s;t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),2400)}
+let piReady = false;
+async function initPiSdk(){
+  const status = document.getElementById("piStatus");
+  const button = document.getElementById("piLogin");
+  try {
+    if (!window.Pi) throw new Error("Pi SDK did not load. Open this app through Pi Sandbox.");
+    await window.Pi.init({ version: "2.0", sandbox: true });
+    piReady = true;
+    button.disabled = false;
+    button.textContent = "Sign in with Pi";
+    status.textContent = "Pi SDK initialized in Testnet Sandbox mode. Sign-in is ready for testing.";
+  } catch (error) {
+    console.error("Pi SDK initialization failed:", error);
+    status.textContent = "Pi SDK is not available here. Open PiFood through the Pi Sandbox in a desktop browser.";
+    button.textContent = "Pi sign-in unavailable";
+  }
+}
+async function loginWithPi(){
+  const button = document.getElementById("piLogin");
+  const status = document.getElementById("piStatus");
+  if (!piReady || !window.Pi) {
+    status.textContent = "Pi SDK is not ready. Open PiFood from the Sandbox URL.";
+    return;
+  }
+  button.disabled = true;
+  button.textContent = "Signing in…";
+  try {
+    const auth = await window.Pi.authenticate(
+      ["username"],
+      payment => {
+        console.warn("Incomplete payment found; backend handling is not configured yet.", payment);
+        status.textContent = "An incomplete payment was detected. Please contact the app developer before trying another payment.";
+      }
+    );
+    status.textContent = "Sandbox sign-in successful. Welcome, " + auth.user.username + ". This is a test login; server-side identity verification is not configured yet.";
+    button.textContent = "Signed in: " + auth.user.username;
+  } catch (error) {
+    console.error("Pi sign-in failed:", error);
+    status.textContent = "Sign-in was cancelled or failed: " + (error.message || String(error));
+    button.textContent = "Try Pi sign-in again";
+    button.disabled = false;
+  }
+}
+render();update();initPiSdk();
+</script></body></html>
