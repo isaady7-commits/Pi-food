@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#100d1c">
@@ -81,6 +83,7 @@
     @media(max-width:800px){.hero{grid-template-columns:1fr;padding-top:40px}.grid{grid-template-columns:repeat(2,1fr)}}
     @media(max-width:560px){.nav{height:66px}.nav-actions > button:first-of-type{display:none}.hero-panel{min-height:180px}.grid,.how{grid-template-columns:1fr}.cover{height:135px}.section-head{align-items:start;flex-direction:column}}
   </style>
+<script>Pi.init({ version: "2.0", sandbox: true });</script>
 </head>
 <body>
 <header>
@@ -303,5 +306,76 @@
   document.getElementById("languageSelect").addEventListener("change", e => applyLanguage(e.target.value));
   applyLanguage("en");
 </script>
+
+<div id="springfoods-pi-test">
+  <h3>SpringFoods - Pi Testnet</h3>
+  <button id="pi-login">Connect Pi Wallet</button>
+  <button id="pi-pay" disabled>Test payment: 1 Pi</button>
+  <p id="pi-message">Not connected</p>
+</div>
+<script>
+(() => {
+  let token = null;
+  const msg = document.getElementById("pi-message");
+  const login = document.getElementById("pi-login");
+  const pay = document.getElementById("pi-pay");
+
+  login.onclick = async () => {
+    try {
+      const auth = await window.Pi.authenticate(
+        ["username", "payments"],
+        payment => console.log("Incomplete payment:", payment)
+      );
+      token = auth.accessToken;
+
+      const r = await fetch("/api/verify", {
+        method: "POST",
+        headers: {Authorization: `Bearer ${token}`}
+      });
+      if (!r.ok) throw new Error("Pi verification failed");
+
+      msg.textContent = "Connected: " + auth.user.username;
+      pay.disabled = false;
+    } catch(e) {
+      msg.textContent = e.message;
+    }
+  };
+
+  pay.onclick = () => {
+    window.Pi.createPayment({
+      amount: 1,
+      memo: "SpringFoods Testnet order",
+      metadata: {app:"SPRINGFOODS", environment:"TESTNET"}
+    }, {
+      onReadyForServerApproval: async paymentId => {
+        const r = await fetch("/api/payments/approve", {
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json",
+            Authorization:`Bearer ${token}`
+          },
+          body:JSON.stringify({paymentId})
+        });
+        if (!r.ok) throw new Error("Approval failed");
+      },
+      onReadyForServerCompletion: async (paymentId, txid) => {
+        const r = await fetch("/api/payments/complete", {
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json",
+            Authorization:`Bearer ${token}`
+          },
+          body:JSON.stringify({paymentId, txid})
+        });
+        if (!r.ok) throw new Error("Completion failed");
+        msg.textContent = "Payment confirmed by server!";
+      },
+      onCancel: () => msg.textContent = "Payment cancelled",
+      onError: e => msg.textContent = "Payment error: " + e.message
+    });
+  };
+})();
+</script>
+
 </body>
 </html>
