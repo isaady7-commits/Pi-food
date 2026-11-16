@@ -326,7 +326,28 @@
     try {
       const auth = await window.Pi.authenticate(
         ["username", "payments"],
-        payment => console.log("Incomplete payment:", payment)
+       payment => {
+  const txid = payment.transaction?.txid;
+
+  if (!txid) {
+    console.error("Transaction ID missing:", payment);
+    return;
+  }
+
+  return fetch("https://literate-guide-r7xv54x66g4pcpwjp-3000.app.github.dev/api/payments/complete", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      paymentId: payment.identifier,
+      txid: txid
+    })
+  })
+  .then(r => r.json())
+  .then(data => console.log("Payment completed:", data))
+  .catch(error => console.error("Completion error:", error));
+}
       );
       token = auth.accessToken;
 
