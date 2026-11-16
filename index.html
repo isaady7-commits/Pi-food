@@ -361,7 +361,7 @@
         if (!r.ok) throw new Error("Approval failed");
       },
       onReadyForServerCompletion: async (paymentId, txid) => {
-        const r = await fetch("/api/payments/complete", {
+        const r = await fetch("https://literate-guide-r7xv54x66g4pcpwjp-3000.app.github.dev/api/payments/complete", {
           method:"POST",
           headers:{
             "Content-Type":"application/json",
