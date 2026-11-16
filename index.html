@@ -330,7 +330,7 @@
       );
       token = auth.accessToken;
 
-      const r = await fetch("/api/verify", {
+      fetch("https://literate-guide-r7xv54x66g4pcpwjp-3000.app.github.dev/api/verify", {
         method: "POST",
         headers: {Authorization: `Bearer ${token}`}
       });
