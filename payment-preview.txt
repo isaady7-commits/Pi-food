@@ -1,0 +1,205 @@
+                              const 
+PI_API_BASE = 
+"https://api.minepi.com/v2";
+
+                              
+app.post("/api/payments/approve", async 
+(req, res) => {
+                                const { 
+paymentId } = req.body;
+
+                                  if 
+(!paymentId || !process.env.PI_API_KEY) 
+{
+                                      
+return res.status(400).json({ error: 
+"Missing paymentId or API key" });
+                                        
+}
+
+                                        
+  try {
+                                        
+      const response = await fetch(
+                                        
+            
+`${PI_API_BASE}/payments/${encodeURIComp
+onent(paymentId)}/approve`,
+                                        
+                  {
+                                        
+                          method: 
+"POST",
+                                        
+                                  
+headers: {
+                                        
+                                        
+    Authorization: `Key 
+${process.env.PI_API_KEY}`
+                                        
+                                        
+            }
+                                        
+                                        
+                  }
+                                        
+                                        
+                      );
+
+                                        
+                                        
+                          const data = 
+await response.json();
+                                        
+                                        
+                              
+res.status(response.status).json(data);
+                                        
+                                        
+                                } catch 
+(error) {
+                                        
+                                        
+                                    
+res.status(500).json({ error: "Payment 
+approval failed" });
+                                        
+                                        
+                                      }
+                                        
+                                        
+                                      
+});
+
+                                        
+                                        
+                                      
+app.post("/api/payments/complete", 
+async (req, res) => {
+                                        
+                                        
+                                        
+const { paymentId, txid } = req.body;
+
+                                        
+                                        
+                                        
+  if (!paymentId || !txid || 
+!process.env.PI_API_KEY) {
+                                        
+                                        
+                                        
+      return res.status(400).json({ 
+error: "Missing paymentId, txid or API 
+key" });
+                                        
+                                        
+                                        
+        }
+
+                                        
+                                        
+                                        
+          try {
+                                        
+                                        
+                                        
+              const response = await 
+fetch(
+                                        
+                                        
+                                        
+                    
+`${PI_API_BASE}/payments/${encodeURIComp
+onent(paymentId)}/complete`,
+                                        
+                                        
+                                        
+                          {
+                                        
+                                        
+                                        
+                                  
+method: "POST",
+                                        
+                                        
+                                        
+                                        
+  headers: {
+                                        
+                                        
+                                        
+                                        
+            Authorization: `Key 
+${process.env.PI_API_KEY}`,
+                                        
+                                        
+                                        
+                                        
+                      "Content-Type": 
+"application/json"
+                                        
+                                        
+                                        
+                                        
+                              },
+                                        
+                                        
+                                        
+                                        
+                                      
+body: JSON.stringify({ txid })
+                                        
+                                        
+                                        
+                                        
+                                        
+    }
+                                        
+                                        
+                                        
+                                        
+                                        
+        );
+
+                                        
+                                        
+                                        
+                                        
+                                        
+            const data = await 
+response.json();
+                                        
+                                        
+                                        
+                                        
+                                        
+                
+res.status(response.status).json(data);
+                                        
+                                        
+                                        
+                                        
+                                        
+                  } catch (error) {
+                                        
+                                        
+                                        
+                                        
+                                        
+                      
+res.status(500).json({ error: "Payment 
+completion failed" });
+                                        
+                                        
+                                        
+                                        
+                                        
+                        }
+                                        
+                                        
+                                        
+                                        
+                                        
+                        })

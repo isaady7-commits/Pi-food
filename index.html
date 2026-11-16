@@ -350,7 +350,7 @@
       metadata: {app:"SPRINGFOODS", environment:"TESTNET"}
     }, {
       onReadyForServerApproval: async paymentId => {
-        const r = await fetch("/api/payments/approve", {
+        const r = await fetch("https://literate-guide-r7xv54x66g4pcpwjp-3000.app.github.dev/api/payments/approve", {
           method:"POST",
           headers:{
             "Content-Type":"application/json",

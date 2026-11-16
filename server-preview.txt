@@ -1,0 +1,84 @@
+     1	
+     2	require("dotenv").config();
+     3	
+     4	const express = require("express");
+     5	const cors = require("cors");
+     6	
+     7	const app = express();
+     8	const PORT = process.env.PORT || 3000;
+     9	
+    10	app.use(cors());
+    11	app.use(express.json());
+    12	
+    13	app.get("/", (req, res) => {
+    14	  res.json({
+    15	      app: "SPRINGFOODS",
+    16	          status: "online",
+    17	              message: "SpringFoods API is running!"
+    18	                });
+    19	                });
+    20	
+    21	                app.get("/api/health", (req, res) => {
+    22	                  res.json({
+    23	                      status: "ok",
+    24	                          timestamp: new Date().toISOString()
+    25	                            });
+    26	                            });
+    27	
+    28	                            app.listen(PORT, "0.0.0.0", () => {
+    29	                              console.log(`SPRINGFOODS server running on port ${PORT}`);
+    30	                              });
+    31	
+    32	                              const PI_API_BASE = "https://api.minepi.com/v2";
+    33	
+    34	                              app.post("/api/payments/approve", async (req, res) => {
+    35	                                const { paymentId } = req.body;
+    36	
+    37	                                  if (!paymentId || !process.env.PI_API_KEY) {
+    38	                                      return res.status(400).json({ error: "Missing paymentId or API key" });
+    39	                                        }
+    40	
+    41	                                          try {
+    42	                                              const response = await fetch(
+    43	                                                    `${PI_API_BASE}/payments/${encodeURIComponent(paymentId)}/approve`,
+    44	                                                          {
+    45	                                                                  method: "POST",
+    46	                                                                          headers: {
+    47	                                                                                    Authorization: `Key ${process.env.PI_API_KEY}`
+    48	                                                                                            }
+    49	                                                                                                  }
+    50	                                                                                                      );
+    51	
+    52	                                                                                                          const data = await response.json();
+    53	                                                                                                              res.status(response.status).json(data);
+    54	                                                                                                                } catch (error) {
+    55	                                                                                                                    res.status(500).json({ error: "Payment approval failed" });
+    56	                                                                                                                      }
+    57	                                                                                                                      });
+    58	
+    59	                                                                                                                      app.post("/api/payments/complete", async (req, res) => {
+    60	                                                                                                                        const { paymentId, txid } = req.body;
+    61	
+    62	                                                                                                                          if (!paymentId || !txid || !process.env.PI_API_KEY) {
+    63	                                                                                                                              return res.status(400).json({ error: "Missing paymentId, txid or API key" });
+    64	                                                                                                                                }
+    65	
+    66	                                                                                                                                  try {
+    67	                                                                                                                                      const response = await fetch(
+    68	                                                                                                                                            `${PI_API_BASE}/payments/${encodeURIComponent(paymentId)}/complete`,
+    69	                                                                                                                                                  {
+    70	                                                                                                                                                          method: "POST",
+    71	                                                                                                                                                                  headers: {
+    72	                                                                                                                                                                            Authorization: `Key ${process.env.PI_API_KEY}`,
+    73	                                                                                                                                                                                      "Content-Type": "application/json"
+    74	                                                                                                                                                                                              },
+    75	                                                                                                                                                                                                      body: JSON.stringify({ txid })
+    76	                                                                                                                                                                                                            }
+    77	                                                                                                                                                                                                                );
+    78	
+    79	                                                                                                                                                                                                                    const data = await response.json();
+    80	                                                                                                                                                                                                                        res.status(response.status).json(data);
+    81	                                                                                                                                                                                                                          } catch (error) {
+    82	                                                                                                                                                                                                                              res.status(500).json({ error: "Payment completion failed" });
+    83	                                                                                                                                                                                                                                }
+    84	                                                                                                                                                                                                                                })
